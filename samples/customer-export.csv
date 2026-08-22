@@ -1,0 +1,4 @@
+id,name,email,phone,card_on_file,iban,notes
+1,Dana Ruiz,dana.ruiz@meridian-logistics.example,+1 415 555 0134,4242 4242 4242 4242,GB82 WEST 1234 5698 7654 32,renewal due
+2,Piet van Beek,p.vanbeek@delta-retail.example,+31 20 555 8899,5555 5555 5555 4444,DE89 3704 0044 0532 0130 00,invoice 2026-0144 open
+3,Marta Kelly,marta.kelly@brightside.example,+353 1 555 8842,,FR14 2004 1010 0505 0001 3M02 606,prefers email
