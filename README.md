@@ -102,7 +102,9 @@ cargo build --release
 ./target/release/leakscan ./folder-you-are-about-to-send
 ```
 
-Rust 1.75+, single binary, no network access at any point.
+Stable Rust, single binary, no network access at any point. CI builds and tests
+on 1.98.0; the committed `Cargo.lock` is v4, so anything older than Cargo 1.78
+cannot read it.
 
 ```bash
 cargo test        # 38 tests: Luhn, mod-97, XML parsing, EXIF maths, severities
