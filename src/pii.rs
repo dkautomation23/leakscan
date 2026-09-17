@@ -77,7 +77,7 @@ pub fn luhn_valid(digits: &str) -> bool {
             }
         })
         .sum();
-    sum % 10 == 0
+    sum.is_multiple_of(10)
 }
 
 /// ISO 7064 mod-97-10, the check every real IBAN passes and no invoice number does.

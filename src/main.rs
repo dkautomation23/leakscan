@@ -286,9 +286,7 @@ fn write_json(path: &Path, report: &Report) -> std::io::Result<()> {
         value
             .replace('\\', "\\\\")
             .replace('"', "\\\"")
-            .replace('\n', " ")
-            .replace('\r', " ")
-            .replace('\t', " ")
+            .replace(['\n', '\r', '\t'], " ")
     }
 
     let mut file = std::fs::File::create(path)?;

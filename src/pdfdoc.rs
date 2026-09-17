@@ -52,7 +52,7 @@ pub fn inspect(bytes: &[u8]) -> Result<PdfFacts, String> {
     let pages = document.get_pages();
     facts.pages = pages.len();
 
-    for (_, page_id) in &pages {
+    for page_id in pages.values() {
         if let Ok(page) = document.get_dictionary(*page_id) {
             if let Ok(annotations) = page.get(b"Annots") {
                 match annotations {

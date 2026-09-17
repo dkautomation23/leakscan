@@ -1,5 +1,7 @@
 # leakscan
 
+[![CI](https://github.com/dkautomation23/leakscan/actions/workflows/ci.yml/badge.svg)](https://github.com/dkautomation23/leakscan/actions/workflows/ci.yml)
+
 Checks what leaves with a file before you send it: tracked changes still in the
 document, comments from the internal review, hidden worksheets, GPS coordinates
 in photos, and personal data in the text.
