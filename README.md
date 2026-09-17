@@ -93,6 +93,19 @@ Do not send these files as they are.
 The sample files in `samples/` are built to contain exactly these problems —
 open them in Word and Excel and you will not see any of it.
 
+## Install
+
+A built binary for Linux, macOS (Apple silicon) and Windows is attached to
+every [release](https://github.com/dkautomation23/leakscan/releases) — no toolchain,
+no compile step:
+
+```bash
+curl -sSL https://github.com/dkautomation23/leakscan/releases/latest/download/leakscan-v1.0.0-x86_64-unknown-linux-gnu.tar.gz | tar xz
+./leakscan-v1.0.0-x86_64-unknown-linux-gnu/leakscan --help
+```
+
+Each archive is built and tested on the platform it targets, not cross-compiled.
+
 ## Build and use
 
 ```bash
