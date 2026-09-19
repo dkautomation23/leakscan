@@ -1,0 +1,78 @@
+name: Bug report
+description: leakscan crashed, mis-detected something, or produced a wrong report.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please do not attach real client files, real customer exports, or
+        anything with genuine personal data — that is exactly what this tool
+        is built to catch, and a public issue is not a safe place for it.
+        Use a file from `samples/`, redact the sensitive values, or build a
+        minimal synthetic reproduction.
+  - type: input
+    id: version
+    attributes:
+      label: leakscan version
+      description: Output of `leakscan --version`
+      placeholder: leakscan 1.0.0
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Linux
+        - macOS (Apple silicon)
+        - Windows
+        - Other (say which, below)
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: How did you install it?
+      options:
+        - Downloaded release binary
+        - Built from source with cargo build
+    validations:
+      required: true
+  - type: input
+    id: command
+    attributes:
+      label: Exact command you ran
+      placeholder: leakscan ./outbox --json report.json
+    validations:
+      required: true
+  - type: dropdown
+    id: filetype
+    attributes:
+      label: File type involved
+      options:
+        - .docx / .xlsx / .pptx
+        - .pdf
+        - .jpg / .tif / .heic
+        - .txt / .csv / .json / .xml / .html / .log / .sql
+        - Mixed folder
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened instead
+      description: >-
+        Paste the terminal output if you can. Mask or shorten any detected
+        value before pasting — leakscan's own report already masks card
+        numbers and IBANs, but a metadata finding (an author name, an email
+        address) may not be something you want public.
+      render: console
+    validations:
+      required: true

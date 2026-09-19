@@ -1,0 +1,32 @@
+name: Feature request
+description: Suggest a file format, a detector, or a flag leakscan doesn't have yet.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to catch or check?
+      description: >-
+        A file format, a kind of hidden content, or a personal-data pattern
+        that leakscan currently misses or doesn't support at all.
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: What should leakscan do
+      description: A new detector, a new format, a new flag — be as concrete as you can.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What you've tried instead
+      description: A workaround, another tool, a manual check — helps judge how much this is worth.
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      options:
+        - label: I'd be willing to open a PR for this
+          required: false
