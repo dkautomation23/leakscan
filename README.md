@@ -120,7 +120,7 @@ on 1.98.0; the committed `Cargo.lock` is v4, so anything older than Cargo 1.78
 cannot read it.
 
 ```bash
-cargo test        # 38 tests: Luhn, mod-97, XML parsing, EXIF maths, severities
+cargo test        # 41 tests: Luhn, mod-97, XML parsing, EXIF maths, severities, overwrite guard
 ```
 
 | Flag | Meaning |
@@ -129,6 +129,7 @@ cargo test        # 38 tests: Luhn, mod-97, XML parsing, EXIF maths, severities
 | `--no-pii` | metadata checks only, skip the personal-data pass |
 | `--flat` | do not descend into sub-folders |
 | `--json FILE` | full report as JSON |
+| `--force` | overwrite `--json` if it already exists (otherwise refused) |
 | `--max-mb` | largest file to open, default 200 |
 
 Exit code is `1` when something critical was found — enough to gate a send:

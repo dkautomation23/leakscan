@@ -82,6 +82,15 @@ fn local(name: &str) -> &str {
     name.rsplit(':').next().unwrap_or(name)
 }
 
+/// Cap on how much any single zip entry - and all entries combined - are
+/// allowed to inflate to. `--max-mb` only bounds the *compressed* file on
+/// disk, so without this a 300 KB `.docx` can legally decompress into
+/// hundreds of megabytes (a "zip bomb"). 64 MB is far above any legitimate
+/// part of a real document (even a huge spreadsheet's sharedStrings.xml runs
+/// a few MB at most), while small enough that inflating one hostile entry -
+/// or all of them together - cannot exhaust memory on an ordinary machine.
+const MAX_DECOMPRESSED_BYTES: u64 = 64 * 1024 * 1024;
+
 pub fn inspect(bytes: &[u8]) -> Result<OfficeFacts, String> {
     let cursor = std::io::Cursor::new(bytes);
     let mut archive = zip::ZipArchive::new(cursor).map_err(|error| error.to_string())?;
@@ -91,15 +100,40 @@ pub fn inspect(bytes: &[u8]) -> Result<OfficeFacts, String> {
         .filter_map(|index| archive.by_index(index).ok().map(|file| file.name().to_string()))
         .collect();
 
+    // Tracked across entries too: many entries just under the per-entry cap
+    // would otherwise sum to an unbounded amount.
+    let mut total_decompressed: u64 = 0;
+
     for name in &names {
-        let mut contents = String::new();
+        let mut buffer = Vec::new();
         {
-            let Ok(mut file) = archive.by_name(name) else { continue };
-            // Binary parts (images, fonts) are skipped rather than decoded.
-            if file.read_to_string(&mut contents).is_err() {
+            let Ok(file) = archive.by_name(name) else { continue };
+            // Read one byte past the cap - enough to tell "landed exactly on
+            // it" apart from "kept going past it" - without ever buffering a
+            // hostile entry's full, possibly huge, decompressed size.
+            let mut limited = file.take(MAX_DECOMPRESSED_BYTES + 1);
+            if limited.read_to_end(&mut buffer).is_err() {
                 continue;
             }
         }
+
+        let entry_len = buffer.len() as u64;
+        if entry_len > MAX_DECOMPRESSED_BYTES {
+            return Err(format!(
+                "{name}: inflates past {} MB by itself - refusing to read it (looks like a zip bomb)",
+                MAX_DECOMPRESSED_BYTES / 1_048_576
+            ));
+        }
+        total_decompressed += entry_len;
+        if total_decompressed > MAX_DECOMPRESSED_BYTES {
+            return Err(format!(
+                "{name}: this archive inflates past {} MB in total across its parts - refusing to read further (looks like a zip bomb)",
+                MAX_DECOMPRESSED_BYTES / 1_048_576
+            ));
+        }
+
+        // Binary parts (images, fonts) are skipped rather than decoded.
+        let Ok(contents) = String::from_utf8(buffer) else { continue };
 
         match name.as_str() {
             "docProps/core.xml" => read_core_properties(&contents, &mut facts),
@@ -443,5 +477,30 @@ mod tests {
     fn a_clean_document_produces_no_findings() {
         let facts = OfficeFacts::default();
         assert!(findings("clean.docx", &facts).is_empty());
+    }
+
+    #[test]
+    fn a_zip_entry_that_inflates_past_the_cap_is_rejected_not_fully_read() {
+        use std::io::Write;
+
+        // A run of zero bytes compresses to almost nothing under deflate, so
+        // this is a realistic docx-shaped zip bomb: tiny on disk, huge once
+        // inflated. 65 MB is chosen to sit just past the 64 MB cap the fix
+        // enforces, without the test itself allocating an unreasonable amount.
+        let payload = vec![0u8; 65 * 1024 * 1024];
+
+        let mut zip_bytes = Vec::new();
+        {
+            let mut writer = zip::ZipWriter::new(std::io::Cursor::new(&mut zip_bytes));
+            let options = zip::write::SimpleFileOptions::default().compression_method(zip::CompressionMethod::Deflated);
+            writer.start_file("word/document.xml", options).expect("start zip entry");
+            writer.write_all(&payload).expect("write oversized payload");
+            writer.finish().expect("finish zip");
+        }
+
+        let result = inspect(&zip_bytes);
+        assert!(result.is_err(), "an entry that inflates past the cap must be rejected, not read in full");
+        let message = result.unwrap_err();
+        assert!(message.contains("word/document.xml"), "error should name the offending entry: {message}");
     }
 }

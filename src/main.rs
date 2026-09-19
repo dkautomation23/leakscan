@@ -37,6 +37,10 @@ struct Args {
     #[arg(long)]
     json: Option<PathBuf>,
 
+    /// Overwrite --json if it already exists
+    #[arg(long)]
+    force: bool,
+
     /// Only print critical findings
     #[arg(long)]
     quiet: bool,
@@ -195,7 +199,7 @@ fn main() {
     print_report(&report, &args, started);
 
     if let Some(path) = &args.json {
-        if let Err(error) = write_json(path, &report) {
+        if let Err(error) = write_json(path, &report, args.force) {
             eprintln!("could not write {}: {error}", path.display());
         } else {
             println!("full report -> {}", path.display());
@@ -279,8 +283,17 @@ fn print_report(report: &Report, args: &Args, started: Instant) {
     );
 }
 
-fn write_json(path: &Path, report: &Report) -> std::io::Result<()> {
+fn write_json(path: &Path, report: &Report, force: bool) -> std::io::Result<()> {
     use std::io::Write;
+
+    // A rerun must never quietly eat an earlier report - refuse instead of
+    // overwriting unless the caller explicitly asked for that.
+    if !force && path.exists() {
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::AlreadyExists,
+            format!("{} already exists; overwrite only with --force", path.display()),
+        ));
+    }
 
     fn escape(value: &str) -> String {
         value
