@@ -10,7 +10,7 @@ repository = "https://github.com/dkautomation23/leakscan"
 zip = { version = "2", default-features = false, features = ["deflate"] }
 quick-xml = "0.36"
 regex = "1"
-kamadak-exif = "0.5"
+kamadak-exif = "0.6"
 lopdf = { version = "0.34", default-features = false, features = ["nom_parser"] }
 walkdir = "2"
 rayon = "1"
