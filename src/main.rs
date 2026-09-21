@@ -343,7 +343,7 @@ mod tests {
     #[test]
     fn payment_data_is_critical_and_other_personal_data_is_a_warning() {
         let detector = pii::Detector::new();
-        let findings = pii_findings(&detector, "export.csv", "card 4242 4242 4242 4242, mail a@b.com");
+        let findings = pii_findings(&detector, "export.csv", "card 4242 4242 4242 4242, mail a@example.com");
         let severities: Vec<Severity> = findings.iter().map(|f| f.severity).collect();
         assert!(severities.contains(&Severity::Critical));
         assert!(severities.contains(&Severity::Warning));

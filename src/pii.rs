@@ -289,13 +289,13 @@ mod tests {
     #[test]
     fn emails_and_phones_are_counted_not_listed() {
         let detector = Detector::new();
-        let text = "a@b.com, c@d.org, call +49 170 555 2418 or +44 20 7946 0958";
+        let text = "a@example.com, c@example.org, call +49 170 555 2418 or +44 20 7946 0958";
         let hits = detector.scan(text);
         let emails = hits.iter().find(|hit| hit.kind == Kind::Email).unwrap();
         let phones = hits.iter().find(|hit| hit.kind == Kind::Phone).unwrap();
         assert_eq!(emails.count, 2);
         assert_eq!(phones.count, 2);
-        assert!(!emails.sample.contains("a@b.com"));
+        assert!(!emails.sample.contains("a@example.com"));
     }
 
     #[test]
